@@ -1,0 +1,7 @@
+streamlit
+pandas
+cryptography
+scikit-learn
+numpy
+jinja2
+xhtml2pdf

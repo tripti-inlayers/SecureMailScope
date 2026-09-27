@@ -1,0 +1,124 @@
+{
+  "metadata": {
+    "filename": "data/attack.pcap",
+    "analyzed_at": "2026-09-27T13:02:34.246598+00:00"
+  },
+  "summary": {
+    "total_sessions": 2,
+    "low_risk": 0,
+    "medium_risk": 0,
+    "high_risk": 2
+  },
+  "sessions": [
+    {
+      "session_id": "session_0",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": false,
+        "version": null,
+        "cipher_suite": null,
+        "key_exchange": null
+      },
+      "certificate": {
+        "present": false,
+        "subject": null,
+        "issuer": null,
+        "valid_from": null,
+        "valid_until": null,
+        "expired": null
+      },
+      "starttls": {
+        "attempted": true,
+        "succeeded": false,
+        "note": "STARTTLS was offered by the server and explicitly attempted by the client, but the session continued in plaintext \u2014 active STARTTLS stripping attack detected."
+      },
+      "findings": [
+        {
+          "title": "TLS Finding",
+          "severity": "HIGH",
+          "description": "No TLS detected \u2014 session in plaintext",
+          "evidence": "tcp.stream==0",
+          "recommendation": "Upgrade to TLS 1.2 or 1.3 and replace weak cipher suites."
+        },
+        {
+          "title": "Certificate Finding",
+          "severity": "MEDIUM",
+          "description": "No certificate found in handshake",
+          "evidence": "tcp.stream==0",
+          "recommendation": "Ensure a valid, non-expired certificate is served."
+        },
+        {
+          "title": "STARTTLS Stripping Attack Detected",
+          "severity": "CRITICAL",
+          "description": "The client issued a STARTTLS command and the server had advertised STARTTLS support in its EHLO response, but the session continued in plaintext after the upgrade was blocked. This is the hallmark signature of an active man-in-the-middle STARTTLS stripping attack: credentials and message content transmitted after this point are visible to the attacker.",
+          "evidence": "tcp.stream==0",
+          "recommendation": "Enforce implicit TLS (port 465 for SMTP, 993 for IMAP, 995 for POP3). Deploy MTA-STS for outbound mail to prevent stripping by network adversaries. Investigate the network path between client and server for active interception."
+        }
+      ],
+      "risk": {
+        "level": "CRITICAL",
+        "score": 100
+      },
+      "anomaly": {
+        "flagged": null,
+        "anomaly_score": null,
+        "note": "Not enough sessions in this capture for anomaly detection (need >= 3)"
+      }
+    },
+    {
+      "session_id": "session_1",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": false,
+        "version": null,
+        "cipher_suite": null,
+        "key_exchange": null
+      },
+      "certificate": {
+        "present": false,
+        "subject": null,
+        "issuer": null,
+        "valid_from": null,
+        "valid_until": null,
+        "expired": null
+      },
+      "starttls": {
+        "attempted": false,
+        "succeeded": false,
+        "note": "Server did not advertise STARTTLS capability \u2014 session ran in plaintext due to server misconfiguration, not a detected active stripping attack."
+      },
+      "findings": [
+        {
+          "title": "TLS Finding",
+          "severity": "HIGH",
+          "description": "No TLS detected \u2014 session in plaintext",
+          "evidence": "tcp.stream==1",
+          "recommendation": "Upgrade to TLS 1.2 or 1.3 and replace weak cipher suites."
+        },
+        {
+          "title": "Certificate Finding",
+          "severity": "MEDIUM",
+          "description": "No certificate found in handshake",
+          "evidence": "tcp.stream==1",
+          "recommendation": "Ensure a valid, non-expired certificate is served."
+        },
+        {
+          "title": "Session in Plaintext \u2014 No TLS Negotiated",
+          "severity": "HIGH",
+          "description": "No TLS handshake was detected for this session. The server may not have advertised STARTTLS, or the client did not attempt the upgrade. All traffic including authentication credentials is transmitted in cleartext.",
+          "evidence": "tcp.stream==1",
+          "recommendation": "Enable and enforce STARTTLS or switch to an implicit-TLS port."
+        }
+      ],
+      "risk": {
+        "level": "HIGH",
+        "score": 80
+      },
+      "anomaly": {
+        "flagged": null,
+        "anomaly_score": null,
+        "note": "Not enough sessions in this capture for anomaly detection (need >= 3)"
+      }
+    }
+  ]
+}

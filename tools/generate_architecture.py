@@ -1,0 +1,126 @@
+import os
+
+svg_content = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 600" width="1800" height="600">
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 8; ry: 8; }
+      .box-highlight { fill: #eff6ff; stroke: #3b82f6; stroke-width: 2; rx: 8; ry: 8; }
+      .box-contract { fill: #fdf2f8; stroke: #ec4899; stroke-width: 3; rx: 8; ry: 8; stroke-dasharray: 6,6; }
+      .box-ml { fill: #f0fdf4; stroke: #22c55e; stroke-width: 2; rx: 8; ry: 8; }
+      
+      .text-title { font-family: Helvetica, sans-serif; font-size: 24px; font-weight: bold; fill: #0f172a; }
+      .text-sub { font-family: Helvetica, sans-serif; font-size: 16px; fill: #475569; }
+      .text-label { font-family: Helvetica, sans-serif; font-size: 18px; font-weight: bold; fill: #64748b; letter-spacing: 2px;}
+      
+      .line { fill: none; stroke: #94a3b8; stroke-width: 3; marker-end: url(#arrow); }
+      .line-ml { fill: none; stroke: #22c55e; stroke-width: 3; stroke-dasharray: 5,5; marker-end: url(#arrow-ml); }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+    </marker>
+    <marker id="arrow-ml" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#22c55e" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1800" height="600" class="bg" />
+
+  <!-- Regions -->
+  <rect x="250" y="50" width="550" height="500" fill="#f1f5f9" rx="12" ry="12" />
+  <text x="525" y="80" class="text-label" text-anchor="middle">ANALYZER LANE (Python Backend)</text>
+
+  <rect x="1100" y="50" width="450" height="500" fill="#f1f5f9" rx="12" ry="12" />
+  <text x="1325" y="80" class="text-label" text-anchor="middle">DASHBOARD LANE (Streamlit)</text>
+
+  <!-- Input -->
+  <rect x="50" y="250" width="150" height="80" class="box" />
+  <text x="125" y="290" class="text-title" text-anchor="middle">PCAP File</text>
+  <text x="125" y="315" class="text-sub" text-anchor="middle">(Uploaded/Saved)</text>
+
+  <!-- Analyzer Steps -->
+  <rect x="300" y="120" width="200" height="60" class="box-highlight" />
+  <text x="400" y="157" class="text-title" text-anchor="middle">tshark Dissection</text>
+
+  <rect x="550" y="120" width="200" height="60" class="box-highlight" />
+  <text x="650" y="157" class="text-title" text-anchor="middle">Stream Recon.</text>
+
+  <rect x="300" y="270" width="200" height="60" class="box-highlight" />
+  <text x="400" y="307" class="text-title" text-anchor="middle">TLS/Cert Extract</text>
+
+  <rect x="550" y="270" width="200" height="60" class="box-highlight" />
+  <text x="650" y="300" class="text-title" text-anchor="middle">Rule-Based Grading</text>
+  <text x="650" y="320" class="text-sub" text-anchor="middle">(security_rules.py)</text>
+
+  <!-- ML Anomaly (Parallel) -->
+  <rect x="550" y="420" width="200" height="60" class="box-ml" />
+  <text x="650" y="450" class="text-title" text-anchor="middle">Anomaly Detection</text>
+  <text x="650" y="470" class="text-sub" text-anchor="middle">(anomaly_detector.py)</text>
+
+  <!-- Contract JSON -->
+  <rect x="850" y="230" width="200" height="120" class="box-contract" />
+  <text x="950" y="275" class="text-title" text-anchor="middle">analysis_result.json</text>
+  <text x="950" y="305" class="text-sub" text-anchor="middle" font-weight="bold">"The only shared surface"</text>
+
+  <!-- Dashboard Steps -->
+  <rect x="1130" y="260" width="160" height="60" class="box-highlight" />
+  <text x="1210" y="297" class="text-title" text-anchor="middle">Streamlit App</text>
+
+  <rect x="1350" y="130" width="170" height="50" class="box" />
+  <text x="1435" y="162" class="text-title" text-anchor="middle">Summary Metrics</text>
+  
+  <rect x="1350" y="210" width="170" height="50" class="box" />
+  <text x="1435" y="242" class="text-title" text-anchor="middle">Session Table</text>
+  
+  <rect x="1350" y="290" width="170" height="50" class="box" />
+  <text x="1435" y="322" class="text-title" text-anchor="middle">Risk Charts</text>
+  
+  <rect x="1350" y="370" width="170" height="50" class="box" />
+  <text x="1435" y="402" class="text-title" text-anchor="middle">Detail View</text>
+
+  <!-- Output Exports -->
+  <rect x="1600" y="250" width="170" height="80" class="box" />
+  <text x="1685" y="290" class="text-title" text-anchor="middle">Export</text>
+  <text x="1685" y="315" class="text-sub" text-anchor="middle">JSON / HTML / PDF</text>
+
+  <!-- Connections -->
+  <!-- Input to Dissection -->
+  <path d="M 200 290 L 250 290 L 250 150 L 290 150" class="line" />
+  
+  <!-- Dissection to Stream Recon -->
+  <path d="M 500 150 L 540 150" class="line" />
+  
+  <!-- Stream Recon to TLS Extract (loop back down) -->
+  <path d="M 750 150 L 780 150 L 780 230 L 260 230 L 260 300 L 290 300" class="line" />
+  
+  <!-- TLS Extract to Rule-based Grading -->
+  <path d="M 500 300 L 540 300" class="line" />
+  
+  <!-- Rule-based Grading to Contract -->
+  <path d="M 750 300 L 840 300" class="line" />
+  
+  <!-- TLS Extract to Anomaly (parallel) -->
+  <path d="M 520 300 L 520 450 L 540 450" class="line-ml" />
+  
+  <!-- Anomaly to Contract -->
+  <path d="M 750 450 L 790 450 L 790 320 L 840 320" class="line-ml" />
+
+  <!-- Contract to Streamlit -->
+  <path d="M 1050 290 L 1120 290" class="line" />
+  
+  <!-- Streamlit to App Components -->
+  <path d="M 1290 290 L 1320 290 L 1320 155 L 1340 155" class="line" />
+  <path d="M 1290 290 L 1320 290 L 1320 235 L 1340 235" class="line" />
+  <path d="M 1290 290 L 1340 290" class="line" />
+  <path d="M 1290 290 L 1320 290 L 1320 395 L 1340 395" class="line" />
+
+  <!-- Streamlit to Export -->
+  <path d="M 1210 320 L 1210 460 L 1570 460 L 1570 290 L 1590 290" class="line" />
+
+</svg>"""
+
+with open("Architecture_Diagram.svg", "w", encoding="utf-8") as f:
+    f.write(svg_content)
+
+print("Created Architecture_Diagram.svg")

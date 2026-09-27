@@ -1,0 +1,69 @@
+{
+  "metadata": {
+    "filename": "data/weak.pcap",
+    "analyzed_at": "2026-09-27T13:02:57.398048+00:00"
+  },
+  "summary": {
+    "total_sessions": 1,
+    "low_risk": 0,
+    "medium_risk": 0,
+    "high_risk": 1
+  },
+  "sessions": [
+    {
+      "session_id": "session_0",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": false,
+        "version": null,
+        "cipher_suite": null,
+        "key_exchange": null
+      },
+      "certificate": {
+        "present": false,
+        "subject": null,
+        "issuer": null,
+        "valid_from": null,
+        "valid_until": null,
+        "expired": null
+      },
+      "starttls": {
+        "attempted": false,
+        "succeeded": false,
+        "note": "Server did not advertise STARTTLS capability \u2014 session ran in plaintext due to server misconfiguration, not a detected active stripping attack."
+      },
+      "findings": [
+        {
+          "title": "TLS Finding",
+          "severity": "HIGH",
+          "description": "No TLS detected \u2014 session in plaintext",
+          "evidence": "tcp.stream==0",
+          "recommendation": "Upgrade to TLS 1.2 or 1.3 and replace weak cipher suites."
+        },
+        {
+          "title": "Certificate Finding",
+          "severity": "MEDIUM",
+          "description": "No certificate found in handshake",
+          "evidence": "tcp.stream==0",
+          "recommendation": "Ensure a valid, non-expired certificate is served."
+        },
+        {
+          "title": "Session in Plaintext \u2014 No TLS Negotiated",
+          "severity": "HIGH",
+          "description": "No TLS handshake was detected for this session. The server may not have advertised STARTTLS, or the client did not attempt the upgrade. All traffic including authentication credentials is transmitted in cleartext.",
+          "evidence": "tcp.stream==0",
+          "recommendation": "Enable and enforce STARTTLS or switch to an implicit-TLS port."
+        }
+      ],
+      "risk": {
+        "level": "HIGH",
+        "score": 80
+      },
+      "anomaly": {
+        "flagged": null,
+        "anomaly_score": null,
+        "note": "Not enough sessions in this capture for anomaly detection (need >= 3)"
+      }
+    }
+  ]
+}

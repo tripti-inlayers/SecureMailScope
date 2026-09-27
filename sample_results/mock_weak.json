@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "filename": "weak.pcap",
+    "analyzed_at": "2026-09-27T10:05:00Z"
+  },
+  "summary": {
+    "total_sessions": 3,
+    "low_risk": 1,
+    "medium_risk": 1,
+    "high_risk": 1
+  },
+  "sessions": [
+    {
+      "session_id": "session_001",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": true,
+        "version": "TLS 1.2",
+        "cipher_suite": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+        "key_exchange": "ECDHE"
+      },
+      "certificate": {
+        "present": true,
+        "subject": "CN=mail.example.com",
+        "issuer": "CN=Test CA",
+        "valid_from": "2025-01-01",
+        "valid_until": "2026-01-01",
+        "expired": false
+      },
+      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "findings": [
+        {
+          "title": "Modern TLS and valid certificate",
+          "severity": "LOW",
+          "description": "Session uses TLS 1.2 with a strong cipher suite and a valid certificate.",
+          "evidence": "tcp.stream==0",
+          "recommendation": "No action needed."
+        }
+      ],
+      "risk": { "level": "LOW", "score": 10 },
+      "anomaly": { "flagged": false, "anomaly_score": 0.0612, "note": null }
+    },
+    {
+      "session_id": "session_002",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": true,
+        "version": "TLS 1.0",
+        "cipher_suite": "TLS_RSA_WITH_AES_128_CBC_SHA",
+        "key_exchange": "RSA"
+      },
+      "certificate": {
+        "present": true,
+        "subject": "CN=oldmail.example.com",
+        "issuer": "CN=Test CA",
+        "valid_from": "2025-01-01",
+        "valid_until": "2026-01-01",
+        "expired": false
+      },
+      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "findings": [
+        {
+          "title": "Deprecated TLS version",
+          "severity": "HIGH",
+          "description": "Session uses TLS 1.0, which is deprecated and vulnerable to POODLE/BEAST.",
+          "evidence": "tcp.stream==1",
+          "recommendation": "Upgrade to TLS 1.2 or 1.3."
+        }
+      ],
+      "risk": { "level": "HIGH", "score": 80 },
+      "anomaly": { "flagged": true, "anomaly_score": -0.0391, "note": null }
+    },
+    {
+      "session_id": "session_003",
+      "protocol": "IMAP",
+      "tls": {
+        "detected": true,
+        "version": "TLS 1.2",
+        "cipher_suite": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+        "key_exchange": "ECDHE"
+      },
+      "certificate": {
+        "present": false,
+        "subject": null,
+        "issuer": null,
+        "valid_from": null,
+        "valid_until": null,
+        "expired": null
+      },
+      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "findings": [
+        {
+          "title": "No certificate found in handshake",
+          "severity": "MEDIUM",
+          "description": "A certificate was not observed in the captured handshake fragment.",
+          "evidence": "tcp.stream==2",
+          "recommendation": "Ensure complete packet capture or investigate incomplete TLS handshake."
+        }
+      ],
+      "risk": { "level": "MEDIUM", "score": 50 },
+      "anomaly": { "flagged": false, "anomaly_score": 0.0501, "note": null }
+    }
+  ]
+}

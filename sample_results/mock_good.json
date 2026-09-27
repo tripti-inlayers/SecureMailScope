@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "filename": "good.pcap",
+    "analyzed_at": "2026-09-27T10:00:00Z"
+  },
+  "summary": {
+    "total_sessions": 3,
+    "low_risk": 3,
+    "medium_risk": 0,
+    "high_risk": 0
+  },
+  "sessions": [
+    {
+      "session_id": "session_001",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": true,
+        "version": "TLS 1.3",
+        "cipher_suite": "TLS_AES_256_GCM_SHA384",
+        "key_exchange": "X25519"
+      },
+      "certificate": {
+        "present": true,
+        "subject": "CN=mail.good.com",
+        "issuer": "CN=Good CA",
+        "valid_from": "2025-01-01",
+        "valid_until": "2027-01-01",
+        "expired": false
+      },
+      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "findings": [
+        {
+          "title": "Modern TLS and valid certificate",
+          "severity": "LOW",
+          "description": "Session uses TLS 1.3 with a strong cipher suite and a valid certificate.",
+          "evidence": "tcp.stream==0",
+          "recommendation": "No action needed."
+        }
+      ],
+      "risk": { "level": "LOW", "score": 10 },
+      "anomaly": { "flagged": false, "anomaly_score": 0.0821, "note": null }
+    },
+    {
+      "session_id": "session_002",
+      "protocol": "IMAP",
+      "tls": {
+        "detected": true,
+        "version": "TLS 1.2",
+        "cipher_suite": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+        "key_exchange": "ECDHE"
+      },
+      "certificate": {
+        "present": true,
+        "subject": "CN=imap.good.com",
+        "issuer": "CN=Good CA",
+        "valid_from": "2025-01-01",
+        "valid_until": "2027-01-01",
+        "expired": false
+      },
+      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "findings": [
+        {
+          "title": "Modern TLS and valid certificate",
+          "severity": "LOW",
+          "description": "Session uses TLS 1.2 with a strong cipher suite and a valid certificate.",
+          "evidence": "tcp.stream==1",
+          "recommendation": "No action needed."
+        }
+      ],
+      "risk": { "level": "LOW", "score": 10 },
+      "anomaly": { "flagged": false, "anomaly_score": 0.0754, "note": null }
+    },
+    {
+      "session_id": "session_003",
+      "protocol": "POP3",
+      "tls": {
+        "detected": true,
+        "version": "TLS 1.3",
+        "cipher_suite": "TLS_CHACHA20_POLY1305_SHA256",
+        "key_exchange": "X25519"
+      },
+      "certificate": {
+        "present": true,
+        "subject": "CN=pop3.good.com",
+        "issuer": "CN=Good CA",
+        "valid_from": "2025-06-01",
+        "valid_until": "2027-06-01",
+        "expired": false
+      },
+      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "findings": [
+        {
+          "title": "Modern TLS and valid certificate",
+          "severity": "LOW",
+          "description": "Session uses TLS 1.3 with a strong AEAD cipher and a valid certificate.",
+          "evidence": "tcp.stream==2",
+          "recommendation": "No action needed."
+        }
+      ],
+      "risk": { "level": "LOW", "score": 10 },
+      "anomaly": { "flagged": false, "anomaly_score": 0.0799, "note": null }
+    }
+  ]
+}

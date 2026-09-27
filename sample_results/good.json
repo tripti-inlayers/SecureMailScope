@@ -1,0 +1,55 @@
+{
+  "metadata": {
+    "filename": "data/good.pcap",
+    "analyzed_at": "2026-09-27T13:02:24.263927+00:00"
+  },
+  "summary": {
+    "total_sessions": 1,
+    "low_risk": 0,
+    "medium_risk": 1,
+    "high_risk": 0
+  },
+  "sessions": [
+    {
+      "session_id": "session_0",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": true,
+        "version": "0x0303",
+        "cipher_suite": "0x1302",
+        "key_exchange": null
+      },
+      "certificate": {
+        "present": false,
+        "subject": null,
+        "issuer": null,
+        "valid_from": null,
+        "valid_until": null,
+        "expired": null
+      },
+      "starttls": {
+        "attempted": true,
+        "succeeded": true,
+        "note": null
+      },
+      "findings": [
+        {
+          "title": "Certificate Finding",
+          "severity": "MEDIUM",
+          "description": "No certificate found in handshake",
+          "evidence": "tcp.stream==0",
+          "recommendation": "Ensure a valid, non-expired certificate is served."
+        }
+      ],
+      "risk": {
+        "level": "MEDIUM",
+        "score": 50
+      },
+      "anomaly": {
+        "flagged": null,
+        "anomaly_score": null,
+        "note": "Not enough sessions in this capture for anomaly detection (need >= 3)"
+      }
+    }
+  ]
+}

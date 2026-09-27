@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "filename": "critical.pcap",
+    "analyzed_at": "2026-09-27T10:10:00Z"
+  },
+  "summary": {
+    "total_sessions": 1,
+    "low_risk": 0,
+    "medium_risk": 0,
+    "high_risk": 1
+  },
+  "sessions": [
+    {
+      "session_id": "session_001",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": false,
+        "version": null,
+        "cipher_suite": null,
+        "key_exchange": null
+      },
+      "certificate": {
+        "present": false,
+        "subject": null,
+        "issuer": null,
+        "valid_from": null,
+        "valid_until": null,
+        "expired": null
+      },
+      "starttls": {
+        "attempted": true,
+        "succeeded": false,
+        "note": "STARTTLS offered but session continued in plaintext"
+      },
+      "findings": [
+        {
+          "title": "STARTTLS Stripping Attack",
+          "severity": "CRITICAL",
+          "description": "STARTTLS was offered but the session continued in plaintext. This indicates a possible downgrade attack.",
+          "evidence": "tcp.stream==0",
+          "recommendation": "Investigate network path for active interception. Enforce TLS."
+        }
+      ],
+      "risk": { "level": "HIGH", "score": 100 }
+    }
+  ]
+}

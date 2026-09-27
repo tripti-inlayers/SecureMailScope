@@ -1,0 +1,108 @@
+{
+  "metadata": {
+    "filename": "attack.pcap",
+    "analyzed_at": "2026-09-27T10:10:00Z"
+  },
+  "summary": {
+    "total_sessions": 3,
+    "low_risk": 2,
+    "medium_risk": 0,
+    "high_risk": 1
+  },
+  "sessions": [
+    {
+      "session_id": "session_001",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": true,
+        "version": "TLS 1.3",
+        "cipher_suite": "TLS_AES_256_GCM_SHA384",
+        "key_exchange": "X25519"
+      },
+      "certificate": {
+        "present": true,
+        "subject": "CN=mail.corp.example.com",
+        "issuer": "CN=Corp CA",
+        "valid_from": "2025-01-01",
+        "valid_until": "2027-01-01",
+        "expired": false
+      },
+      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "findings": [
+        {
+          "title": "Healthy session",
+          "severity": "LOW",
+          "description": "Session uses TLS 1.3 with strong encryption.",
+          "evidence": "tcp.stream==0",
+          "recommendation": "No action needed."
+        }
+      ],
+      "risk": { "level": "LOW", "score": 10 },
+      "anomaly": { "flagged": false, "anomaly_score": 0.0744, "note": null }
+    },
+    {
+      "session_id": "session_002",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": true,
+        "version": "TLS 1.3",
+        "cipher_suite": "TLS_AES_128_GCM_SHA256",
+        "key_exchange": "X25519"
+      },
+      "certificate": {
+        "present": true,
+        "subject": "CN=relay.corp.example.com",
+        "issuer": "CN=Corp CA",
+        "valid_from": "2025-01-01",
+        "valid_until": "2027-01-01",
+        "expired": false
+      },
+      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "findings": [
+        {
+          "title": "Healthy session",
+          "severity": "LOW",
+          "description": "Session uses TLS 1.3 with strong encryption.",
+          "evidence": "tcp.stream==1",
+          "recommendation": "No action needed."
+        }
+      ],
+      "risk": { "level": "LOW", "score": 10 },
+      "anomaly": { "flagged": false, "anomaly_score": 0.0799, "note": null }
+    },
+    {
+      "session_id": "session_003",
+      "protocol": "SMTP",
+      "tls": {
+        "detected": false,
+        "version": null,
+        "cipher_suite": null,
+        "key_exchange": null
+      },
+      "certificate": {
+        "present": false,
+        "subject": null,
+        "issuer": null,
+        "valid_from": null,
+        "valid_until": null,
+        "expired": null
+      },
+      "starttls": {
+        "attempted": true,
+        "succeeded": false,
+        "note": "STARTTLS offered but session continued in plaintext — possible downgrade/stripping attack"
+      },
+      "findings": [
+        {
+          "title": "STARTTLS Stripping Attack",
+          "severity": "CRITICAL",
+          "description": "STARTTLS was offered by the server but the session continued in plaintext. This is the hallmark signature of an active man-in-the-middle STARTTLS stripping attack.",
+          "evidence": "tcp.stream==2",
+          "recommendation": "Investigate network path for active interception. Enforce implicit TLS (port 465/993/995). Deploy MTA-STS for outbound mail."
+        }
+      ],
+      "risk": { "level": "HIGH", "score": 100 },
+      "anomaly": { "flagged": true, "anomaly_score": -0.0421, "note": null }
+    }
+  ]
+}
