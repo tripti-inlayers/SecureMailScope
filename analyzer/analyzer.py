@@ -206,39 +206,25 @@ def analyze_pcap(pcap_path):
         # Server advertised STARTTLS if any multi-line 250 response mentions it
         starttls_offered = any("STARTTLS" in p for p in stream_rsp_params)
 
-        if starttls_attempted and not tls_info["detected"]:
-            # Case A — active stripping
+        if not starttls_offered and not starttls_attempted:
             starttls_info = {
-                "attempted": True,
-                "succeeded": False,
-                "note": (
-                    "STARTTLS was offered by the server and explicitly attempted by the client, "
-                    "but the session continued in plaintext — active STARTTLS stripping attack detected."
-                ),
+                "attempted": False, "succeeded": False,
+                "note": "Server did not advertise STARTTLS capability — session ran in plaintext."
             }
-        elif tls_info["detected"]:
-            # Case B — healthy TLS (either STARTTLS or implicit)
+        elif starttls_offered and not starttls_attempted:
             starttls_info = {
-                "attempted": starttls_attempted,
-                "succeeded": True,
-                "note": None,
+                "attempted": False, "succeeded": False,
+                "note": "Server advertised STARTTLS, but client did not use it — "
+                        "session proceeded in plaintext despite encryption being available."
+            }
+        elif starttls_attempted and not tls_info["detected"]:
+            starttls_info = {
+                "attempted": True, "succeeded": False,
+                "note": "Client issued STARTTLS but no TLS handshake followed — "
+                        "possible stripping or negotiation failure."
             }
         else:
-            # Case C — no STARTTLS attempted AND no TLS (misconfigured server)
-            starttls_info = {
-                "attempted": False,
-                "succeeded": False,
-                "note": (
-                    "Server did not advertise STARTTLS capability — "
-                    "session ran in plaintext due to server misconfiguration, "
-                    "not a detected active stripping attack."
-                    if not starttls_offered
-                    else (
-                        "Server advertised STARTTLS but no STARTTLS command was observed — "
-                        "client may not support STARTTLS or capture is incomplete."
-                    )
-                ),
-            }
+            starttls_info = {"attempted": True, "succeeded": True, "note": None}
 
         # Grade the security
         tls_level,  tls_desc  = security_rules.grade_tls(tls_info)
@@ -253,6 +239,10 @@ def analyze_pcap(pcap_path):
             starttls_level = "HIGH"
         else:
             starttls_level = "LOW"
+
+        auth_attempted = any(cmd.startswith("AUTH") for cmd in stream_req_commands)
+        if auth_attempted and not tls_info["detected"]:
+            starttls_level = "CRITICAL"
 
         overall_level, overall_score = security_rules.overall_risk(tls_level, cert_level, starttls_level)
 
@@ -272,6 +262,15 @@ def analyze_pcap(pcap_path):
                 "description": cert_desc,
                 "evidence": f"tcp.stream=={sid}",
                 "recommendation": "Ensure a valid, non-expired certificate is served.",
+            })
+
+        if auth_attempted and not tls_info["detected"]:
+            findings.append({
+                "title": "Cleartext AUTH LOGIN credentials exposed",
+                "severity": "CRITICAL",
+                "description": "AUTH LOGIN transmits credentials Base64-encoded, not encrypted. Both username and password were captured in cleartext.",
+                "evidence": f"tcp.stream=={sid}",
+                "recommendation": "Enforce STARTTLS or implicit TLS before allowing AUTH; reject AUTH attempts on unencrypted connections."
             })
         if starttls_level in ("HIGH", "CRITICAL"):
             if starttls_info["attempted"] and not starttls_info["succeeded"]:

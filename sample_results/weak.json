@@ -1,7 +1,7 @@
 {
   "metadata": {
     "filename": "data/weak.pcap",
-    "analyzed_at": "2026-09-27T13:02:57.398048+00:00"
+    "analyzed_at": "2026-09-27T13:14:48.558168+00:00"
   },
   "summary": {
     "total_sessions": 1,
@@ -30,7 +30,7 @@
       "starttls": {
         "attempted": false,
         "succeeded": false,
-        "note": "Server did not advertise STARTTLS capability \u2014 session ran in plaintext due to server misconfiguration, not a detected active stripping attack."
+        "note": "Server did not advertise STARTTLS capability \u2014 session ran in plaintext."
       },
       "findings": [
         {
@@ -48,16 +48,23 @@
           "recommendation": "Ensure a valid, non-expired certificate is served."
         },
         {
+          "title": "Cleartext AUTH LOGIN credentials exposed",
+          "severity": "CRITICAL",
+          "description": "AUTH LOGIN transmits credentials Base64-encoded, not encrypted. Both username and password were captured in cleartext.",
+          "evidence": "tcp.stream==0",
+          "recommendation": "Enforce STARTTLS or implicit TLS before allowing AUTH; reject AUTH attempts on unencrypted connections."
+        },
+        {
           "title": "Session in Plaintext \u2014 No TLS Negotiated",
-          "severity": "HIGH",
+          "severity": "CRITICAL",
           "description": "No TLS handshake was detected for this session. The server may not have advertised STARTTLS, or the client did not attempt the upgrade. All traffic including authentication credentials is transmitted in cleartext.",
           "evidence": "tcp.stream==0",
           "recommendation": "Enable and enforce STARTTLS or switch to an implicit-TLS port."
         }
       ],
       "risk": {
-        "level": "HIGH",
-        "score": 80
+        "level": "CRITICAL",
+        "score": 100
       },
       "anomaly": {
         "flagged": null,

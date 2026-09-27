@@ -17,26 +17,18 @@
 </head>
 <body>
   <h1>SecureMailScope Forensic Report</h1>
-  <p>File: data/attack.pcap &nbsp;|&nbsp; Analyzed: 2026-09-27T13:02:34.246598+00:00</p>
+  <p>File: C:\Users\Raghi\AppData\Local\Temp\tmptvc0ptd5.pcap &nbsp;|&nbsp; Analyzed: 2026-09-27T13:04:52.952860+00:00</p>
   <div class="summary">
-    <div class="card">Total Sessions: 2</div>
+    <div class="card">Total Sessions: 1</div>
     <div class="card">Low: 0</div>
     <div class="card">Medium: 0</div>
-    <div class="card">High: 2</div>
+    <div class="card">High: 1</div>
   </div>
   <table>
     <tr><th>Session</th><th>Protocol</th><th>TLS Version</th><th>Cert Valid</th><th>Risk</th></tr>
     
-    <tr class="CRITICAL">
-      <td>session_0</td>
-      <td>SMTP</td>
-      <td>N/A</td>
-      <td>N/A</td>
-      <td>CRITICAL (100)</td>
-    </tr>
-    
     <tr class="HIGH">
-      <td>session_1</td>
+      <td>session_0</td>
       <td>SMTP</td>
       <td>N/A</td>
       <td>N/A</td>
@@ -46,7 +38,7 @@
   </table>
   <h2>Findings Detail</h2>
   
-    <h3>session_0 — CRITICAL</h3>
+    <h3>session_0 — HIGH</h3>
     
       <p><b>TLS Finding</b> [HIGH]<br>
       No TLS detected — session in plaintext<br>
@@ -56,29 +48,11 @@
       <p><b>Certificate Finding</b> [MEDIUM]<br>
       No certificate found in handshake<br>
       <i>Evidence: tcp.stream==0</i><br>
-      Recommendation: Ensure a valid, non-expired certificate is served.</p>
-    
-      <p><b>STARTTLS Stripping Attack Detected</b> [CRITICAL]<br>
-      The client issued a STARTTLS command and the server had advertised STARTTLS support in its EHLO response, but the session continued in plaintext after the upgrade was blocked. This is the hallmark signature of an active man-in-the-middle STARTTLS stripping attack: credentials and message content transmitted after this point are visible to the attacker.<br>
-      <i>Evidence: tcp.stream==0</i><br>
-      Recommendation: Enforce implicit TLS (port 465 for SMTP, 993 for IMAP, 995 for POP3). Deploy MTA-STS for outbound mail to prevent stripping by network adversaries. Investigate the network path between client and server for active interception.</p>
-    
-  
-    <h3>session_1 — HIGH</h3>
-    
-      <p><b>TLS Finding</b> [HIGH]<br>
-      No TLS detected — session in plaintext<br>
-      <i>Evidence: tcp.stream==1</i><br>
-      Recommendation: Upgrade to TLS 1.2 or 1.3 and replace weak cipher suites.</p>
-    
-      <p><b>Certificate Finding</b> [MEDIUM]<br>
-      No certificate found in handshake<br>
-      <i>Evidence: tcp.stream==1</i><br>
       Recommendation: Ensure a valid, non-expired certificate is served.</p>
     
       <p><b>Session in Plaintext — No TLS Negotiated</b> [HIGH]<br>
       No TLS handshake was detected for this session. The server may not have advertised STARTTLS, or the client did not attempt the upgrade. All traffic including authentication credentials is transmitted in cleartext.<br>
-      <i>Evidence: tcp.stream==1</i><br>
+      <i>Evidence: tcp.stream==0</i><br>
       Recommendation: Enable and enforce STARTTLS or switch to an implicit-TLS port.</p>
     
   
