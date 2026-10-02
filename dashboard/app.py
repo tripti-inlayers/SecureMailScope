@@ -64,7 +64,10 @@ if uploaded_file is not None:
                         parsed_data["metadata"]["filename"] = uploaded_file.name
                     st.session_state.live_data = parsed_data
                     st.session_state.active_upload_name = uploaded_file.name
-                    st.sidebar.success("✅ PCAP Analysis Completed!")
+                    if parsed_data.get("sessions"):
+                        st.sidebar.success("✅ PCAP Analysis Completed!")
+                    else:
+                        st.sidebar.warning("⚠️ PCAP Analysis Completed: No recognized email protocol sessions found.")
             except Exception as e:
                 st.sidebar.error(f"⚠️ Failed to launch analyzer: {e}")
             finally:
@@ -115,210 +118,217 @@ st.sidebar.caption("🛡️ **SecureMailScope** | Offline Cryptographic Posture 
 
 # Main Title & Header
 st.title("🛡️ SecureMailScope Security Dashboard")
-filename = os.path.basename(data['metadata']['filename'])
-analyzed_at = data['metadata']['analyzed_at']
+metadata = data.get("metadata", {})
+filename = os.path.basename(metadata.get("filename", "Unknown"))
+analyzed_at = metadata.get("analyzed_at", "N/A")
 st.caption(f"📁 **File:** `{filename}` | ⏱️ **Analyzed:** `{analyzed_at}`")
 
-total_sessions = data["summary"]["total_sessions"]
-high_risk_count = data["summary"]["high_risk"]
-med_risk_count = data["summary"].get("medium_risk", 0)
-low_risk_count = data["summary"].get("low_risk", 0)
+sessions = data.get("sessions", [])
+summary = data.get("summary", {})
+total_sessions = summary.get("total_sessions", len(sessions))
+high_risk_count = summary.get("high_risk", 0)
+med_risk_count = summary.get("medium_risk", 0)
+low_risk_count = summary.get("low_risk", 0)
 
-if high_risk_count > 0:
-    st.error(f"🚨 **Security Warning:** {total_sessions} sessions analyzed — **{high_risk_count} HIGH/CRITICAL risk** findings requiring attention!")
-elif med_risk_count > 0:
-    st.warning(f"⚠️ **Security Notice:** {total_sessions} sessions analyzed — {med_risk_count} MEDIUM risk findings detected.")
+if not sessions:
+    st.warning("⚠️ No SMTP/IMAP/POP3 sessions could be identified in this capture. The capture may use an unsupported protocol, encrypted traffic without visible protocol metadata, or contain no recognizable email session.")
 else:
-    st.success(f"✅ **Security Clean:** {total_sessions} sessions analyzed — All connections use strong modern encryption.")
-
-# Metrics Cards
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("Total Sessions", total_sessions)
-m2.metric("Low Risk", low_risk_count)
-m3.metric("Medium Risk", med_risk_count)
-m4.metric("High / Critical Risk", high_risk_count)
-
-st.markdown("---")
-
-# Sessions Summary Table
-st.subheader("📊 Session Overview")
-
-rows = []
-for s in data["sessions"]:
-    tls = s.get("tls") or {}
-    cert = s.get("certificate") or {}
-    stls = s.get("starttls") or {}
-    risk = s.get("risk") or {}
-    anomaly = s.get("anomaly") or {}
-
-    tls_ver = safe(tls.get("version"))
-    if not tls.get("detected"):
-        tls_status = "Plaintext"
+    if high_risk_count > 0:
+        st.error(f"🚨 **Security Warning:** {total_sessions} sessions analyzed — **{high_risk_count} HIGH/CRITICAL risk** findings requiring attention!")
+    elif med_risk_count > 0:
+        st.warning(f"⚠️ **Security Notice:** {total_sessions} sessions analyzed — {med_risk_count} MEDIUM risk findings detected.")
     else:
-        tls_status = tls_ver
+        st.success(f"✅ **Security Clean:** {total_sessions} sessions analyzed — All connections use strong modern encryption.")
 
-    if cert.get("present"):
-        cert_status = "Expired" if cert.get("expired") else "Valid"
-    else:
-        cert_status = "Missing"
+    # Metrics Cards
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Total Sessions", total_sessions)
+    m2.metric("Low Risk", low_risk_count)
+    m3.metric("Medium Risk", med_risk_count)
+    m4.metric("High / Critical Risk", high_risk_count)
 
-    if stls.get("attempted") and not stls.get("succeeded"):
-        stls_status = "⚡ Stripped"
-    elif stls.get("succeeded"):
-        stls_status = "Negotiated"
-    else:
-        stls_status = "Not Used"
-
-    anom_flag = anomaly.get("flagged")
-    if anom_flag is True:
-        anom_str = "🚩 Flagged"
-    elif anom_flag is False:
-        anom_str = "Normal"
-    else:
-        anom_str = "N/A"
-
-    rows.append({
-        "Session ID": s["session_id"],
-        "Protocol": safe(s.get("protocol")),
-        "TLS Version": tls_status,
-        "Cipher Suite": safe(tls.get("cipher_suite")),
-        "Certificate": cert_status,
-        "STARTTLS": stls_status,
-        "Risk Level": risk.get("level", "UNKNOWN"),
-        "Behavioral Anomaly (ML)": anom_str,
-    })
-
-df = pd.DataFrame(rows)
-
-def highlight_risk(row):
-    color_map = {
-        "LOW": "background-color: #d4edda; color: #155724;",
-        "MEDIUM": "background-color: #fff3cd; color: #856404;",
-        "HIGH": "background-color: #f8d7da; color: #721c24;",
-        "CRITICAL": "background-color: #f5c6cb; color: #721c24; font-weight: bold;"
-    }
-    return [color_map.get(row["Risk Level"], "")] * len(row)
-
-st.dataframe(df.style.apply(highlight_risk, axis=1), use_container_width=True)
-
-st.markdown("---")
-
-# Session Detail Inspector
-session_ids = [s["session_id"] for s in data["sessions"]]
-selected_id = st.selectbox("🔍 Select Session to Inspect", session_ids)
-session = next(s for s in data["sessions"] if s["session_id"] == selected_id)
-
-st.subheader(f"📌 Security Details — {selected_id}")
-
-tls_data = session.get("tls") or {}
-cert_data = session.get("certificate") or {}
-starttls_data = session.get("starttls") or {}
-risk_data = session.get("risk") or {}
-anom_data = session.get("anomaly") or {}
-
-# Structured Security Detail Cards
-col_a, col_b, col_c, col_d = st.columns(4)
-
-with col_a:
-    st.markdown("### 🔒 TLS Status")
-    if tls_data.get("detected"):
-        st.success(f"**Status:** Encrypted\n\n**Version:** {safe(tls_data.get('version'))}")
-    else:
-        st.error("**Status:** Plaintext (No TLS)\n\n**Version:** N/A")
-
-with col_b:
-    st.markdown("### 🔑 Cipher Suite")
-    st.info(f"**Suite:** {safe(tls_data.get('cipher_suite'))}")
-
-with col_c:
-    st.markdown("### 📜 Certificate")
-    if cert_data.get("present"):
-        if cert_data.get("expired"):
-            st.error(f"**Status:** Expired ❌\n\n**Subject:** {safe(cert_data.get('subject'))}")
-        else:
-            st.success(f"**Status:** Present & Valid ✅\n\n**Subject:** {safe(cert_data.get('subject'))}")
-    else:
-        st.warning("**Status:** No Certificate Observed")
-
-with col_d:
-    st.markdown("### ⚡ STARTTLS & Risk")
-    st.metric("Risk Level", risk_data.get("level", "UNKNOWN"), delta=f"Score: {risk_data.get('score', 'N/A')}")
-
-# Behavioral Anomaly Card
-st.markdown("#### 🤖 Behavioral Anomaly Detection (ML)")
-if anom_data.get("flagged") is True:
-    st.warning(f"🚩 **Behavioral Anomaly Flagged** (Score: `{anom_data.get('anomaly_score')}`). This session deviates statistically from baseline traffic pattern.")
-elif anom_data.get("flagged") is False:
-    st.success(f"✅ **Normal Traffic Behavior** (Score: `{anom_data.get('anomaly_score')}`). No statistical anomaly detected.")
-else:
-    st.info(f"ℹ️ **N/A / Insufficient Sessions:** {anom_data.get('note', 'Need >= 3 sessions in capture for ML anomaly detection.')}")
-
-# STARTTLS Visual Attack Sequence Diagram
-if starttls_data.get("attempted") and not starttls_data.get("succeeded"):
     st.markdown("---")
-    st.error("### 🚨 Detected STARTTLS Stripping Attack Sequence")
-    st.caption("Active Man-in-the-Middle Interception Signature")
-    
-    seq_col1, seq_col2, seq_col3, seq_col4 = st.columns(4)
-    with seq_col1:
-        st.markdown("**1. Server Offers STARTTLS**")
-        st.info("Server advertises `250-STARTTLS` in EHLO response")
-    with seq_col2:
-        st.markdown("**2. Client Requests STARTTLS**")
-        st.info("Client issues `STARTTLS` command")
-    with seq_col3:
-        st.markdown("**3. Attack Block / 502 Failure**")
-        st.error("MITM injects `502 Command Not Implemented` ❌")
-    with seq_col4:
-        st.markdown("**4. Cleartext Continuation**")
-        st.error("Connection drops back to unencrypted cleartext ⚠️")
 
-# Detailed Findings
-st.markdown("### 📋 Security Findings & Recommendations")
-findings = session.get("findings", [])
-if not findings:
-    st.info("No security findings for this session.")
-else:
-    for finding in findings:
-        sev = finding.get("severity", "LOW")
-        icon = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🟠", "CRITICAL": "🔴"}.get(sev, "⚪")
-        with st.expander(f"{icon} {finding.get('title')} [{sev}]"):
-            st.write(finding.get("description", ""))
-            st.code(f"Evidence: {finding.get('evidence', 'N/A')}", language="text")
-            st.markdown(f"**Remediation Recommendation:** {finding.get('recommendation', 'N/A')}")
+    # Sessions Summary Table
+    st.subheader("📊 Session Overview")
 
-# Forensic Report Generation
-st.markdown("---")
-st.subheader("📄 Export Forensic Report")
+    rows = []
+    for s in sessions:
+        tls = s.get("tls") or {}
+        cert = s.get("certificate") or {}
+        stls = s.get("starttls") or {}
+        risk = s.get("risk") or {}
+        anomaly = s.get("anomaly") or {}
 
-try:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    from analyzer import report_exporter
+        tls_ver = safe(tls.get("version"))
+        if not tls.get("detected"):
+            tls_status = "Plaintext"
+        else:
+            tls_status = tls_ver
 
-    reports_dir = os.path.join(SAMPLE_DIR, "reports")
-    os.makedirs(reports_dir, exist_ok=True)
+        if cert.get("present"):
+            cert_status = "Expired" if cert.get("expired") else "Valid"
+        else:
+            cert_status = "Missing"
 
-    if live_data is not None:
-        raw_name = data.get("metadata", {}).get("filename", "live_capture")
-        clean_base = os.path.splitext(os.path.basename(raw_name.replace("\\", "/")))[0]
-        live_json_path = os.path.join(reports_dir, f"{clean_base}.json")
-        with open(live_json_path, "w", encoding="utf-8") as f:
-            json.dump(live_data, f, indent=2)
-        export_json_path = live_json_path
-        download_name_base = clean_base
-    else:
-        export_json_path = choice
-        download_name_base = os.path.splitext(os.path.basename(choice))[0]
-    
-    html_path, pdf_path = report_exporter.export_report(export_json_path, output_dir=reports_dir)
-    
-    with open(pdf_path, "rb") as f:
-        pdf_bytes = f.read()
-    with open(html_path, "rb") as f:
-        html_bytes = f.read()
+        if stls.get("attempted") and not stls.get("succeeded"):
+            stls_status = "⚡ Stripped"
+        elif stls.get("succeeded"):
+            stls_status = "Negotiated"
+        else:
+            stls_status = "Not Used"
+
+        anom_flag = anomaly.get("flagged")
+        if anom_flag is True:
+            anom_str = "🚩 Flagged"
+        elif anom_flag is False:
+            anom_str = "Normal"
+        else:
+            anom_str = "N/A"
+
+        rows.append({
+            "Session ID": s["session_id"],
+            "Protocol": safe(s.get("protocol")),
+            "TLS Version": tls_status,
+            "Cipher Suite": safe(tls.get("cipher_suite")),
+            "Certificate": cert_status,
+            "STARTTLS": stls_status,
+            "Risk Level": risk.get("level", "UNKNOWN"),
+            "Behavioral Anomaly (ML)": anom_str,
+        })
+
+    df = pd.DataFrame(rows)
+
+    def highlight_risk(row):
+        color_map = {
+            "LOW": "background-color: #d4edda; color: #155724;",
+            "MEDIUM": "background-color: #fff3cd; color: #856404;",
+            "HIGH": "background-color: #f8d7da; color: #721c24;",
+            "CRITICAL": "background-color: #f5c6cb; color: #721c24; font-weight: bold;"
+        }
+        return [color_map.get(row["Risk Level"], "")] * len(row)
+
+    st.dataframe(df.style.apply(highlight_risk, axis=1), use_container_width=True)
+
+    st.markdown("---")
+
+    # Session Detail Inspector
+    session_ids = [s["session_id"] for s in sessions]
+    selected_id = st.selectbox("🔍 Select Session to Inspect", session_ids)
+    session = next((s for s in sessions if s["session_id"] == selected_id), None)
+
+    if session:
+        st.subheader(f"📌 Security Details — {selected_id}")
+
+        tls_data = session.get("tls") or {}
+        cert_data = session.get("certificate") or {}
+        starttls_data = session.get("starttls") or {}
+        risk_data = session.get("risk") or {}
+        anom_data = session.get("anomaly") or {}
+
+        # Structured Security Detail Cards
+        col_a, col_b, col_c, col_d = st.columns(4)
+
+        with col_a:
+            st.markdown("### 🔒 TLS Status")
+            if tls_data.get("detected"):
+                st.success(f"**Status:** Encrypted\n\n**Version:** {safe(tls_data.get('version'))}")
+            else:
+                st.error("**Status:** Plaintext (No TLS)\n\n**Version:** N/A")
+
+        with col_b:
+            st.markdown("### 🔑 Cipher Suite")
+            st.info(f"**Suite:** {safe(tls_data.get('cipher_suite'))}")
+
+        with col_c:
+            st.markdown("### 📜 Certificate")
+            if cert_data.get("present"):
+                if cert_data.get("expired"):
+                    st.error(f"**Status:** Expired ❌\n\n**Subject:** {safe(cert_data.get('subject'))}")
+                else:
+                    st.success(f"**Status:** Present & Valid ✅\n\n**Subject:** {safe(cert_data.get('subject'))}")
+            else:
+                st.warning("**Status:** No Certificate Observed")
+
+        with col_d:
+            st.markdown("### ⚡ STARTTLS & Risk")
+            st.metric("Risk Level", risk_data.get("level", "UNKNOWN"), delta=f"Score: {risk_data.get('score', 'N/A')}")
+
+        # Behavioral Anomaly Card
+        st.markdown("#### 🤖 Behavioral Anomaly Detection (ML)")
+        if anom_data.get("flagged") is True:
+            st.warning(f"🚩 **Behavioral Anomaly Flagged** (Score: `{anom_data.get('anomaly_score')}`). This session deviates statistically from baseline traffic pattern.")
+        elif anom_data.get("flagged") is False:
+            st.success(f"✅ **Normal Traffic Behavior** (Score: `{anom_data.get('anomaly_score')}`). No statistical anomaly detected.")
+        else:
+            st.info(f"ℹ️ **N/A / Insufficient Sessions:** {anom_data.get('note', 'Need >= 3 sessions in capture for ML anomaly detection.')}")
+
+        # STARTTLS Visual Attack Sequence Diagram
+        if starttls_data.get("attempted") and not starttls_data.get("succeeded"):
+            st.markdown("---")
+            st.error("### 🚨 Detected STARTTLS Stripping Attack Sequence")
+            st.caption("Active Man-in-the-Middle Interception Signature")
+            
+            seq_col1, seq_col2, seq_col3, seq_col4 = st.columns(4)
+            with seq_col1:
+                st.markdown("**1. Server Offers STARTTLS**")
+                st.info("Server advertises `250-STARTTLS` in EHLO response")
+            with seq_col2:
+                st.markdown("**2. Client Requests STARTTLS**")
+                st.info("Client issues `STARTTLS` command")
+            with seq_col3:
+                st.markdown("**3. Attack Block / 502 Failure**")
+                st.error("MITM injects `502 Command Not Implemented` ❌")
+            with seq_col4:
+                st.markdown("**4. Cleartext Continuation**")
+                st.error("Connection drops back to unencrypted cleartext ⚠️")
+
+        # Detailed Findings
+        st.markdown("### 📋 Security Findings & Recommendations")
+        findings = session.get("findings", [])
+        if not findings:
+            st.info("No security findings for this session.")
+        else:
+            for finding in findings:
+                sev = finding.get("severity", "LOW")
+                icon = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🟠", "CRITICAL": "🔴"}.get(sev, "⚪")
+                with st.expander(f"{icon} {finding.get('title')} [{sev}]"):
+                    st.write(finding.get("description", ""))
+                    st.code(f"Evidence: {finding.get('evidence', 'N/A')}", language="text")
+                    st.markdown(f"**Remediation Recommendation:** {finding.get('recommendation', 'N/A')}")
+
+    # Forensic Report Generation
+    st.markdown("---")
+    st.subheader("📄 Export Forensic Report")
+
+    try:
+        sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+        from analyzer import report_exporter
+
+        reports_dir = os.path.join(SAMPLE_DIR, "reports")
+        os.makedirs(reports_dir, exist_ok=True)
+
+        if live_data is not None:
+            raw_name = data.get("metadata", {}).get("filename", "live_capture")
+            clean_base = os.path.splitext(os.path.basename(raw_name.replace("\\", "/")))[0]
+            live_json_path = os.path.join(reports_dir, f"{clean_base}.json")
+            with open(live_json_path, "w", encoding="utf-8") as f:
+                json.dump(live_data, f, indent=2)
+            export_json_path = live_json_path
+            download_name_base = clean_base
+        else:
+            export_json_path = choice
+            download_name_base = os.path.splitext(os.path.basename(choice))[0]
         
-    ec1, ec2 = st.columns(2)
-    ec1.download_button("📥 Download PDF Report", data=pdf_bytes, file_name=f"{download_name_base}.pdf", mime="application/pdf")
-    ec2.download_button("📥 Download HTML Report", data=html_bytes, file_name=f"{download_name_base}.html", mime="text/html")
-except Exception as e:
-    st.error(f"Failed to generate forensic reports: {e}")
+        html_path, pdf_path = report_exporter.export_report(export_json_path, output_dir=reports_dir)
+        
+        with open(pdf_path, "rb") as f:
+            pdf_bytes = f.read()
+        with open(html_path, "rb") as f:
+            html_bytes = f.read()
+            
+        ec1, ec2 = st.columns(2)
+        ec1.download_button("📥 Download PDF Report", data=pdf_bytes, file_name=f"{download_name_base}.pdf", mime="application/pdf")
+        ec2.download_button("📥 Download HTML Report", data=html_bytes, file_name=f"{download_name_base}.html", mime="text/html")
+    except Exception as e:
+        st.error(f"Failed to generate forensic reports: {e}")
