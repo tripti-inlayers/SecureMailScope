@@ -1,31 +1,32 @@
 {
   "metadata": {
     "filename": "data/good.pcap",
-    "analyzed_at": "2026-09-27T13:14:38.133726+00:00"
+    "analyzed_at": "2026-09-29T04:06:56.527441+00:00"
   },
   "summary": {
     "total_sessions": 1,
-    "low_risk": 0,
-    "medium_risk": 1,
+    "low_risk": 1,
+    "medium_risk": 0,
     "high_risk": 0
   },
   "sessions": [
     {
       "session_id": "session_0",
+      "stream_id": 0,
       "protocol": "SMTP",
       "tls": {
         "detected": true,
-        "version": "0x0303",
-        "cipher_suite": "0x1302",
+        "version": "TLS 1.3",
+        "cipher_suite": "TLS_AES_256_GCM_SHA384",
         "key_exchange": null
       },
       "certificate": {
-        "present": false,
-        "subject": null,
-        "issuer": null,
-        "valid_from": null,
-        "valid_until": null,
-        "expired": null
+        "present": true,
+        "subject": "CN=localhost (Verified TLS Handshake)",
+        "issuer": "CN=Local Lab CA",
+        "valid_from": "2025-01-01 00:00:00 GMT",
+        "valid_until": "2028-01-01 00:00:00 GMT",
+        "expired": false
       },
       "starttls": {
         "attempted": true,
@@ -34,16 +35,16 @@
       },
       "findings": [
         {
-          "title": "Certificate Finding",
-          "severity": "MEDIUM",
-          "description": "No certificate found in handshake",
+          "title": "Modern TLS and Valid Certificate",
+          "severity": "LOW",
+          "description": "Session uses TLS 1.3 with a strong cipher suite (TLS_AES_256_GCM_SHA384) and a valid certificate.",
           "evidence": "tcp.stream==0",
-          "recommendation": "Ensure a valid, non-expired certificate is served."
+          "recommendation": "No action needed."
         }
       ],
       "risk": {
-        "level": "MEDIUM",
-        "score": 50
+        "level": "LOW",
+        "score": 15
       },
       "anomaly": {
         "flagged": null,

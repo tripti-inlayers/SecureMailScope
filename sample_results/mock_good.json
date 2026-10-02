@@ -27,7 +27,11 @@
         "valid_until": "2027-01-01",
         "expired": false
       },
-      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "starttls": {
+        "attempted": true,
+        "succeeded": true,
+        "note": null
+      },
       "findings": [
         {
           "title": "Modern TLS and valid certificate",
@@ -37,8 +41,16 @@
           "recommendation": "No action needed."
         }
       ],
-      "risk": { "level": "LOW", "score": 10 },
-      "anomaly": { "flagged": false, "anomaly_score": 0.0821, "note": null }
+      "risk": {
+        "level": "LOW",
+        "score": 10
+      },
+      "anomaly": {
+        "flagged": false,
+        "anomaly_score": 0.0821,
+        "note": null
+      },
+      "stream_id": 0
     },
     {
       "session_id": "session_002",
@@ -57,7 +69,11 @@
         "valid_until": "2027-01-01",
         "expired": false
       },
-      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "starttls": {
+        "attempted": true,
+        "succeeded": true,
+        "note": null
+      },
       "findings": [
         {
           "title": "Modern TLS and valid certificate",
@@ -67,8 +83,16 @@
           "recommendation": "No action needed."
         }
       ],
-      "risk": { "level": "LOW", "score": 10 },
-      "anomaly": { "flagged": false, "anomaly_score": 0.0754, "note": null }
+      "risk": {
+        "level": "LOW",
+        "score": 10
+      },
+      "anomaly": {
+        "flagged": false,
+        "anomaly_score": 0.0754,
+        "note": null
+      },
+      "stream_id": 1
     },
     {
       "session_id": "session_003",
@@ -87,7 +111,11 @@
         "valid_until": "2027-06-01",
         "expired": false
       },
-      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "starttls": {
+        "attempted": true,
+        "succeeded": true,
+        "note": null
+      },
       "findings": [
         {
           "title": "Modern TLS and valid certificate",
@@ -97,8 +125,16 @@
           "recommendation": "No action needed."
         }
       ],
-      "risk": { "level": "LOW", "score": 10 },
-      "anomaly": { "flagged": false, "anomaly_score": 0.0799, "note": null }
+      "risk": {
+        "level": "LOW",
+        "score": 10
+      },
+      "anomaly": {
+        "flagged": false,
+        "anomaly_score": 0.0799,
+        "note": null
+      },
+      "stream_id": 2
     }
   ]
 }

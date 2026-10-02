@@ -27,7 +27,11 @@
         "valid_until": "2027-01-01",
         "expired": false
       },
-      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "starttls": {
+        "attempted": true,
+        "succeeded": true,
+        "note": null
+      },
       "findings": [
         {
           "title": "Healthy session",
@@ -37,8 +41,16 @@
           "recommendation": "No action needed."
         }
       ],
-      "risk": { "level": "LOW", "score": 10 },
-      "anomaly": { "flagged": false, "anomaly_score": 0.0744, "note": null }
+      "risk": {
+        "level": "LOW",
+        "score": 10
+      },
+      "anomaly": {
+        "flagged": false,
+        "anomaly_score": 0.0744,
+        "note": null
+      },
+      "stream_id": 0
     },
     {
       "session_id": "session_002",
@@ -57,7 +69,11 @@
         "valid_until": "2027-01-01",
         "expired": false
       },
-      "starttls": { "attempted": true, "succeeded": true, "note": null },
+      "starttls": {
+        "attempted": true,
+        "succeeded": true,
+        "note": null
+      },
       "findings": [
         {
           "title": "Healthy session",
@@ -67,8 +83,16 @@
           "recommendation": "No action needed."
         }
       ],
-      "risk": { "level": "LOW", "score": 10 },
-      "anomaly": { "flagged": false, "anomaly_score": 0.0799, "note": null }
+      "risk": {
+        "level": "LOW",
+        "score": 10
+      },
+      "anomaly": {
+        "flagged": false,
+        "anomaly_score": 0.0799,
+        "note": null
+      },
+      "stream_id": 1
     },
     {
       "session_id": "session_003",
@@ -90,7 +114,7 @@
       "starttls": {
         "attempted": true,
         "succeeded": false,
-        "note": "STARTTLS offered but session continued in plaintext — possible downgrade/stripping attack"
+        "note": "STARTTLS offered but session continued in plaintext \u00e2\u20ac\u201d possible downgrade/stripping attack"
       },
       "findings": [
         {
@@ -101,8 +125,16 @@
           "recommendation": "Investigate network path for active interception. Enforce implicit TLS (port 465/993/995). Deploy MTA-STS for outbound mail."
         }
       ],
-      "risk": { "level": "HIGH", "score": 100 },
-      "anomaly": { "flagged": true, "anomaly_score": -0.0421, "note": null }
+      "risk": {
+        "level": "HIGH",
+        "score": 100
+      },
+      "anomaly": {
+        "flagged": true,
+        "anomaly_score": -0.0421,
+        "note": null
+      },
+      "stream_id": 2
     }
   ]
 }

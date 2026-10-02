@@ -41,7 +41,11 @@
           "recommendation": "Investigate network path for active interception. Enforce TLS."
         }
       ],
-      "risk": { "level": "HIGH", "score": 100 }
+      "risk": {
+        "level": "HIGH",
+        "score": 100
+      },
+      "stream_id": 0
     }
   ]
 }

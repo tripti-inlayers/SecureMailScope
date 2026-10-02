@@ -1,7 +1,7 @@
 {
   "metadata": {
     "filename": "data/attack.pcap",
-    "analyzed_at": "2026-09-27T13:14:55.806284+00:00"
+    "analyzed_at": "2026-09-29T04:06:48.730612+00:00"
   },
   "summary": {
     "total_sessions": 2,
@@ -12,6 +12,7 @@
   "sessions": [
     {
       "session_id": "session_0",
+      "stream_id": 0,
       "protocol": "SMTP",
       "tls": {
         "detected": false,
@@ -74,6 +75,7 @@
     },
     {
       "session_id": "session_1",
+      "stream_id": 1,
       "protocol": "SMTP",
       "tls": {
         "detected": false,
@@ -92,7 +94,7 @@
       "starttls": {
         "attempted": false,
         "succeeded": false,
-        "note": "Server did not advertise STARTTLS capability \u2014 session ran in plaintext."
+        "note": "Server advertised STARTTLS, but client did not use it \u2014 session proceeded in plaintext despite encryption being available."
       },
       "findings": [
         {

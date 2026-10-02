@@ -1,7 +1,7 @@
 {
   "metadata": {
     "filename": "data/weak.pcap",
-    "analyzed_at": "2026-09-27T13:14:48.558168+00:00"
+    "analyzed_at": "2026-09-29T04:07:00.872192+00:00"
   },
   "summary": {
     "total_sessions": 1,
@@ -12,6 +12,7 @@
   "sessions": [
     {
       "session_id": "session_0",
+      "stream_id": 0,
       "protocol": "SMTP",
       "tls": {
         "detected": false,
@@ -30,7 +31,7 @@
       "starttls": {
         "attempted": false,
         "succeeded": false,
-        "note": "Server did not advertise STARTTLS capability \u2014 session ran in plaintext."
+        "note": "Server advertised STARTTLS, but client did not use it \u2014 session proceeded in plaintext despite encryption being available."
       },
       "findings": [
         {
