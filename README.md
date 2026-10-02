@@ -8,6 +8,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
+## 🚀 Live Demo
+
+[SecureMailScope Dashboard](https://secure-mail-scope.streamlit.app/)
 
 ## 📌 Problem Statement
 
